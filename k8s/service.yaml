@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-bill-headless
+  labels:
+    app: shopping-bill
+spec:
+  clusterIP: None      
+  selector:
+    app: shopping-bill
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
