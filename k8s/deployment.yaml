@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: shopping-bill-container
-        image: badharikesh26/shopping-bill-calc:latest
+        image: badharikesh26/agiletest:latest
         imagePullPolicy: Always
         
         tty: true
