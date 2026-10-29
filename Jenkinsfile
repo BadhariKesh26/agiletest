@@ -1,19 +1,30 @@
 pipeline {
     agent any
+    environment {
+        DOCKER_USER = 'badharikesh26'
+        REPO_NAME   = 'agiletest'
+        PATH        = "C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
+
+        BUILDKIT_HTTP_TIMEOUT = '300'
+    }
     stages {
-        stage('Build & Push') {
+        stage('Checkout Source Code') {
             steps {
-                sh "docker build -t badharikesh26/bill-calc:latest ."
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'U', passwordVariable: 'P')]) {
-                    sh "echo \$P | docker login -u \$U --password-stdin"
-                    sh "docker push badharikesh26/bill-calc:latest"
-                }
+                checkout scm
             }
         }
-        stage('Deploy') {
+        stage('Build & Push Docker Image') {
             steps {
-                sh "kubectl apply -f k8s.yaml"
-                sh "kubectl rollout restart deployment/bill-app"
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                        bat "docker login -u %USER% -p %PASS%"
+                        dir('latest')
+                           
+                            bat "docker build --pull=false -t %DOCKER_USER%/%REPO_NAME%:latest."
+                            bat "docker push %DOCKER_USER%/%REPO_NAME%:latest"
+                        }
+                    }
+                }
             }
         }
     }
